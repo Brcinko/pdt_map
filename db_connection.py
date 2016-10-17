@@ -4,11 +4,19 @@
 
     This file is part of school project on lesson Advanced Databases.
 """
-import settings
+import psycopg2
+
+
+from settings import HOSTNAME, USERNAME, PASSWORD, DB_NAME
 
 
 def open_connection():
-    pass
+    print "Trying to connect to a database."
+    try:
+        db_conn = psycopg2.connect(host=HOSTNAME, user=USERNAME, password=PASSWORD, dbname=DB_NAME)
+        return db_conn
+    except psycopg2.Error as e:
+        raise e.pgerror
 
 
 def close_connection(conn):

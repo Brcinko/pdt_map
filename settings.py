@@ -6,3 +6,17 @@
 """
 
 # Database settings
+HOSTNAME = 'localhost'
+USERNAME = 'postgres'
+PASSWORD = ''
+DB_NAME = 'pdt_map'
+
+# Info string for info call
+infos = [
+    {
+        'id': 1,
+        'title': u'PubMap',
+        'description': u'This is map server project for PDT lesson, which displays something.',
+        'done': False
+    }
+]

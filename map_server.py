@@ -4,23 +4,24 @@
 
     This module is part of school project on lesson Advanced Databases.
 """
-from flask import Flask, request, jsonify
-app = Flask(__name__)
 
-infos = [
-    {
-        'id': 1,
-        'title': u'PubMap',
-        'description': u'This is map server project for PDT lesson, which displays something.',
-        'done': False
-    }
-]
+import db_connection
+import settings
+
+from flask import Flask, request, jsonify
+
+app = Flask(__name__)
 
 
 @app.route('/info', methods=['GET'])
 def info():
     if request.method == 'GET':
-        return jsonify({'infos': infos})
+        return jsonify({'infos': settings.infos})
 
 if __name__ == '__main__':
+    # connect database
+    conn = db_connection.open_connection()
+    print "Database connected."
+    # start API server
     app.run(debug=True)
+
