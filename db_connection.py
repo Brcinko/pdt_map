@@ -15,9 +15,20 @@ def open_connection():
     try:
         db_conn = psycopg2.connect(host=HOSTNAME, user=USERNAME, password=PASSWORD, dbname=DB_NAME)
         return db_conn
-    except psycopg2.Error as e:
+    except psycopg2.DatabaseError as e:
         raise e.pgerror
 
 
 def close_connection(conn):
-    pass
+    print "Closing connection to database."
+    try:
+        conn.close()
+    except psycopg2.DatabaseError as e:
+        raise e.message
+
+
+def execute_query(conn, query):
+    cursor = conn.cursor()
+    cursor.execute(query)
+    records = cursor.fetchall()
+    return records

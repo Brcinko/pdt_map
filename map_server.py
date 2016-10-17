@@ -16,6 +16,9 @@ app = Flask(__name__)
 @app.route('/info', methods=['GET'])
 def info():
     if request.method == 'GET':
+        query = 'SELECT PostGIS_full_version();'
+        postgis_ver = db_connection.execute_query(conn, query)
+        settings.infos[0]['postgis_ver'] = str(postgis_ver)
         return jsonify({'infos': settings.infos})
 
 if __name__ == '__main__':
