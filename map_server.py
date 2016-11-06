@@ -7,8 +7,9 @@
 
 import db_connection
 import settings
+from string import replace
 
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, json
 
 app = Flask(__name__)
 
@@ -20,6 +21,19 @@ def info():
         postgis_ver = db_connection.execute_query(conn, query)
         settings.infos[0]['postgis_ver'] = str(postgis_ver)
         return jsonify({'infos': settings.infos})
+
+
+@app.route('/pubs_info', methods=['GET'])
+def pubs_info():
+    if request.method == 'GET':
+        # query = 'SELECT name AS description, ST_AsGeoJSON(way) AS geometry FROM planet_osm_point WHERE amenity = \'pub\';'
+        query = 'SELECT row_to_json(fc) FROM ( SELECT \'FeatureCollection\' AS type, array_to_json(array_agg(f)) AS features FROM (SELECT \'Feature\' AS type , ST_AsGeoJSON(way)::json AS geometry, row_to_json((name, amenity)) AS properties FROM planet_osm_point WHERE amenity = \'pub\'   ) AS f )  AS fc;'
+        pubs = db_connection.execute_query(conn, query)
+        pubs = str(pubs)
+        new_pubs = replace(pubs, "f1", "description")
+        final_pubs = replace(new_pubs, "f2", "icon")
+        return json.dumps(final_pubs)
+        # return jsonify({'places': str(pubs)})
 
 if __name__ == '__main__':
     # connect database
