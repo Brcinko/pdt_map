@@ -45,8 +45,8 @@
                     var map = new mapboxgl.Map({
                         container: 'map',
                         style: 'mapbox://styles/mapbox/streets-v9',
-                        center: [0, 0],
-                        zoom: 2
+                        center: [17.768399, 48.447811],
+                        zoom: 12
                     });
 
                     var canvas = map.getCanvasContainer();
@@ -152,8 +152,9 @@
                             console.log(call_data)
                            $.ajax({
                             url : '/pubs_polygon',
-                            type : 'GET',
+                            type : 'POST',
                             data : JSON.stringify(call_data),
+                            dataType : 'json',
                             success: function(response) {
                                     console.log(response);
                                     var geo = JSON.parse(response);

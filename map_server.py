@@ -43,6 +43,18 @@ def pubs_building():
     return render_template('pubs_building.html')
 
 
+@app.route('/pubs_polygon', methods=['POST'])
+def pubs_polygon():
+    if request.method == 'POST':
+        # print str(request.get_json(force=True))
+        coords = request.get_json(force=True)
+        print coords['lng'], coords['lat']
+        query = 'SELECT * FROM planet_osm_polygon WHERE ST_Distance_Sphere(way, ST_MakePoint(' + str(coords['lng']) + ', ' + str(coords['lat']) + ')) <= 100 * 1609.34;'
+        print query
+        pubs = db_connection.execute_query(conn, query)
+        return pubs
+
+
 @app.route('/pubs_info', methods=['GET'])
 # @cross_origin()
 def pubs_info():
