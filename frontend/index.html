@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<hmtl>
+	<head>
+		<title>Pubs Map</title>
+		<script src='https://api.mapbox.com/mapbox-gl-js/v0.26.0/mapbox-gl.js'></script>
+		<link href='https://api.mapbox.com/mapbox-gl-js/v0.26.0/mapbox-gl.css' rel='stylesheet' />
+		<link rel="stylesheet" href="http://www.w3schools.com/lib/w3.css">
+	</head>
+	<body>
+		<header class="w3-container w3-teal">
+			  <h1>Pubs and Restaurants</h1>
+		</header>
+		<nav class="w3-sidenav w3-white" style="width:25%">
+ 			<a href="pubs.html">Pubs</a> 
+  			<a href="#">Restaurants</a> 
+  			<a href="#">Hotels</a> 
+  			<a href="#">Coffe</a>
+  			<input type="submit" value="Skusa" onClick="skuska()"> 
+			<form>
+  				<input type="text" name="search" placeholder="Search.." style="margin: 2px">
+			</form>
+		</nav>
+
+		<div style="margin-left:25%">
+
+			<div id='map' style='width: 800px; height: 500px; border-style: groove; margin: 5px'></div>
+			<script type="text/javascript" src="script1.js">
+
+			</script>
+		</div>
+	</body>
+
+</hmtl>
