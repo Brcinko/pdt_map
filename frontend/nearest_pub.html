@@ -56,6 +56,9 @@
                     // flag is active, we listen for a mousedown event.
                     var isCursorOverPoint;
 
+                    //Layer iterator
+                    var LayerID = 0;
+
                     var coordinates = document.getElementById('coordinates');
                     var map = new mapboxgl.Map({
                         container: 'map',
@@ -171,6 +174,7 @@
                             var call_data = new Object();
                             call_data.lng = e[0];
                             call_data.lat = e[1];
+                            var layerName = "places";
                             console.log(call_data);
                            $.ajax({
                             url : '/nearest_pub_point',
@@ -181,8 +185,9 @@
                                     console.log(response);
                                     var geo = JSON.parse(response);
                                     console.log(geo);
-                                    //map.on('load', function () {
-                                        map.addSource('places', {
+                                    console.log(layerName + LayerID);
+                                    removeLayer(layerName);
+                                        map.addSource(layerName  + LayerID, {
                                             'type': 'geojson',
                                             'data': {
                                                 "type": "FeatureCollection",
@@ -195,20 +200,30 @@
 
                                         // Add a layer showing the places.
                                         map.addLayer({
-                                            "id": "places",
+                                            "id": layerName  + LayerID,
                                             "type": "symbol",
-                                            "source": "places",
+                                            "source": layerName  + LayerID,
                                             "layout": {
                                                 "icon-image": "{icon}-15",
                                                 "icon-allow-overlap": true
                                             }
                                         });
-                                    //});
+                                        LayerID = LayerID + 1;
                              },
                             error: function(error) {
                                     console.log(error);
                                 }
                         });
+                    }
+
+                    function removeLayer(layerName, mapp){
+                        if (LayerID == 0){
+                            return;
+                        }
+                        else{
+                            var removelayerID = LayerID - 1;
+                            map.removeLayer(layerName + removelayerID);
+                        }
                     }
                 </script>
 
