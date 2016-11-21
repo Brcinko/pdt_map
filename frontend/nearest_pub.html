@@ -22,15 +22,30 @@
 				</form>
 			</nav>
 			
-<style>
-    .mapboxgl-popup {
-        max-width: 400px;
-        font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
-    }
-</style>
+        <style>
+            .mapboxgl-popup {
+                max-width: 400px;
+                font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+            }
+            .coordinates {
+                background: rgba(0,0,0,0.5);
+                color: #fff;
+                position: absolute;
+                bottom: 10px;
+                left: 10px;
+                padding:5px 10px;
+                margin: 0;
+                font-size: 11px;
+                line-height: 18px;
+                border-radius: 3px;
+                display: none;
+            }
+        </style>
+
 			<div style="margin-left:25%">
 
 				<div id='map' style='width: 800px; height: 500px; border-style: groove; margin: 5px'></div>
+                <pre id='coordinates' class='coordinates'></pre>
 				<script>
                     mapboxgl.accessToken = 'pk.eyJ1IjoiYnJjaW5rbyIsImEiOiJjaXU4czQyNTQwMDFhMnRweW05OGtyMHRpIn0.2-z96JNxFY23ERtAGz7iiA';
                     // Holds mousedown state for events. if this
@@ -57,135 +72,144 @@
                             "type": "Feature",
                             "geometry": {
                                 "type": "Point",
-                                "coordinates": [0, 0]
+                                "coordinates": [17.768399, 48.447811]
                             }
                         }]
                     };
 
+                                        // Add zoom and rotation controls to the map.
+                    map.addControl(new mapboxgl.NavigationControl());
+
                     function mouseDown() {
-                        if (!isCursorOverPoint) return;
+                            if (!isCursorOverPoint) return;
 
-                        isDragging = true;
+                            isDragging = true;
 
-                        // Set a cursor indicator
-                        canvas.style.cursor = 'grab';
+                            // Set a cursor indicator
+                            canvas.style.cursor = 'grab';
 
-                        // Mouse events
-                        map.on('mousemove', onMove);
-                        map.on('mouseup', onUp);
-                    }
+                            // Mouse events
+                            map.on('mousemove', onMove);
+                            map.on('mouseup', onUp);
+                        }
 
-                    function onMove(e) {
-                        if (!isDragging) return;
-                        var coords = e.lngLat;
+                        function onMove(e) {
+                            if (!isDragging) return;
+                            var coords = e.lngLat;
 
-                        // Set a UI indicator for dragging.
-                        canvas.style.cursor = 'grabbing';
+                            // Set a UI indicator for dragging.
+                            canvas.style.cursor = 'grabbing';
 
-                        // Update the Point feature in `geojson` coordinates
-                        // and call setData to the source layer `point` on it.
-                        geojson.features[0].geometry.coordinates = [coords.lng, coords.lat];
-                        map.getSource('point').setData(geojson);
-                    }
+                            // Update the Point feature in `geojson` coordinates
+                            // and call setData to the source layer `point` on it.
+                            geojson.features[0].geometry.coordinates = [coords.lng, coords.lat];
+                            map.getSource('point').setData(geojson);
+                        }
 
-                    function onUp(e) {
-                        if (!isDragging) return;
-                        var coords = e.lngLat;
+                        function onUp(e) {
+                            if (!isDragging) return;
+                            var coords = e.lngLat;
 
-                        // Print the coordinates of where the point had
-                        // finished being dragged to on the map.
-                        coordinates.style.display = 'block';
-                        coordinates.innerHTML = 'Longitude: ' + coords.lng + '<br />Latitude: ' + coords.lat;
-                        canvas.style.cursor = '';
-                        isDragging = false;
-                    }
+                            // Print the coordinates of where the point had
+                            // finished being dragged to on the map.
+                            coordinates.style.display = 'block';
+                            coordinates.innerHTML = 'Longitude: ' + coords.lng + '<br />Latitude: ' + coords.lat;
+                            canvas.style.cursor = '';
+                            isDragging = false;
+                            get_nearest_pub(geojson.features[0].geometry.coordinates);
+                        }
 
-                    map.on('load', function() {
+                        map.on('load', function() {
 
-                        // Add a single point to the map
-                        map.addSource('point', {
-                            "type": "geojson",
-                            "data": geojson
-                        });
+                            // Add a single point to the map
+                            map.addSource('point', {
+                                "type": "geojson",
+                                "data": geojson
+                            });
 
-                        map.addLayer({
-                            "id": "point",
-                            "type": "circle",
-                            "source": "point",
-                            "paint": {
-                                "circle-radius": 10,
-                                "circle-color": "#3887be"
-                            }
-                        });
+                            map.addLayer({
+                                "id": "point",
+                                "type": "circle",
+                                "source": "point",
+                                "paint": {
+                                    "circle-radius": 10,
+                                    "circle-color": "#3887be"
+                                }
+                            });
 
-                        // If a feature is found on map movement,
-                        // set a flag to permit a mousedown events.
-                        map.on('mousemove', function(e) {
-                            var features = map.queryRenderedFeatures(e.point, { layers: ['point'] });
+                            // If a feature is found on map movement,
+                            // set a flag to permit a mousedown events.
+                            map.on('mousemove', function(e) {
+                                var features = map.queryRenderedFeatures(e.point, { layers: ['point'] });
 
-                            // Change point and cursor style as a UI indicator
-                            // and set a flag to enable other mouse events.
-                            if (features.length) {
-                                map.setPaintProperty('point', 'circle-color', '#3bb2d0');
-                                canvas.style.cursor = 'move';
-                                isCursorOverPoint = true;
-                                map.dragPan.disable();
-                             } else {
-                                map.setPaintProperty('point', 'circle-color', '#3887be');
-                                canvas.style.cursor = '';
-                                isCursorOverPoint = false;
-                                map.dragPan.enable();
-                            }
-                        });
-                        // Set `true` to dispatch the event before other functions call it. This
-                        // is necessary for disabling the default map dragging behaviour.
-                        map.on('mousedown', mouseDown, true);
+                                // Change point and cursor style as a UI indicator
+                                // and set a flag to enable other mouse events.
+                                if (features.length) {
+                                    map.setPaintProperty('point', 'circle-color', '#3bb2d0');
+                                    canvas.style.cursor = 'move';
+                                    isCursorOverPoint = true;
+                                    map.dragPan.disable();
+                                } else {
+                                    map.setPaintProperty('point', 'circle-color', '#3887be');
+                                    canvas.style.cursor = '';
+                                    isCursorOverPoint = false;
+                                    map.dragPan.enable();
+                                }
+                            });
+
+                            // Set `true` to dispatch the event before other functions call it. This
+                            // is necessary for disabling the default map dragging behaviour.
+                            map.on('mousedown', mouseDown, true);
+
                         });
                         
-                        map.on('mousemove', function (e) {
-                            var coords = e.lngLat;
+
+                        function get_nearest_pub(e){
+                            //if (!isDragging) return;
+                            //console.log(e);
+                            //var coords = e.lngLat;
                             var call_data = new Object();
-                            call_data.lng = coords.lng;
-                            call_data.lat = coords.lat;
-
-
-                            console.log(call_data)
+                            call_data.lng = e[0];
+                            call_data.lat = e[1];
+                            console.log(call_data);
                            $.ajax({
                             url : '/nearest_pub_point',
                             type : 'POST',
                             data : JSON.stringify(call_data),
-                            dataType : 'json',
+                            //dataType : 'json',
                             success: function(response) {
                                     console.log(response);
                                     var geo = JSON.parse(response);
                                     console.log(geo);
-                                    map.on('load', function () {
-                                        map.addSource('maine', {
+                                    //map.on('load', function () {
+                                        map.addSource('places', {
                                             'type': 'geojson',
                                             'data': {
-                                                'type': 'Feature',
-                                                'geometry':
+                                                "type": "FeatureCollection",
+                                                "features":
+                                                //'type': 'Feature',
+                                                //'geometry':
                                                 geo 
                                             }
                                         });
 
+                                        // Add a layer showing the places.
                                         map.addLayer({
-                                            'id': 'maine',
-                                            'type': 'fill',
-                                            'source': 'maine',
-                                            'layout': {},
-                                            'paint': {
-                                                'fill-color': '#088',
-                                                'fill-opacity': 0.8
+                                            "id": "places",
+                                            "type": "symbol",
+                                            "source": "places",
+                                            "layout": {
+                                                "icon-image": "{icon}-15",
+                                                "icon-allow-overlap": true
                                             }
                                         });
-                                    });
+                                    //});
                              },
                             error: function(error) {
                                     console.log(error);
                                 }
-                            });
-                    });
+                        });
+                    }
                 </script>
 
 			</div>
