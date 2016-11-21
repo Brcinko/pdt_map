@@ -49,10 +49,20 @@ def pubs_polygon():
         # print str(request.get_json(force=True))
         coords = request.get_json(force=True)
         print coords['lng'], coords['lat']
-        query = 'SELECT * FROM planet_osm_polygon WHERE ST_Distance_Sphere(way, ST_MakePoint(' + str(coords['lng']) + ', ' + str(coords['lat']) + ')) <= 100 * 1609.34;'
+        query = 'SELECT ST_AsGeoJSON(ST_Transform(way,4326)), name AS geometry FROM planet_osm_point WHERE amenity = \'pub\' ORDER BY ST_TRANSFORM(way, 4326) <-> st_setsrid(ST_MakePoint(' + str(coords['lng']) + ', ' + str(coords['lat']) + '),4326) LIMIT 1;'
+        # query = 'SELECT * FROM planet_osm_polygon WHERE ST_Distance_Sphere(way, ST_MakePoint(' + str(coords['lng']) + ', ' + str(coords['lat']) + ')) <= 100 * 1609.34;'
         print query
         pubs = db_connection.execute_query(conn, query)
-        return pubs
+        pubsx = list()
+        for p in pubs:
+            x = json.loads(p[0])
+            pubsx.append({"type": "Feature",
+                          "properties":
+                          {"description": p[1],
+                           "icon": "bar"},
+                          "geometry": x })
+        print str(pubsx)
+        return json.dumps(pubsx)
 
 
 @app.route('/pubs_info', methods=['GET'])
