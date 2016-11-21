@@ -74,7 +74,16 @@ def nearest_pub_point():
 @app.route('/get_city_polygon', methods=['GET'])
 def get_city_polygon():
     if request.method == 'GET':
-        pass
+        print(request.args['city'])
+        query = 'SELECT ST_AsGeoJSON(ST_Transform(way, 4326)), way from planet_osm_polygon WHERE place = \'city\' OR place = \'town\' and name = \'' + request.args['city'] + '\' LIMIT 1'
+        cities = db_connection.execute_query(conn, query)
+        citiesx = list()
+        for c in cities:
+            x = json.loads(c[0])
+            citiesx.append({"way": c[1],
+                            "geometry": x})
+        # print citiesx[0]['geometry']['coordinates'][0]
+        return json.dumps(citiesx)
 
 
 @app.route('/pubs_info', methods=['GET'])

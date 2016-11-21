@@ -39,6 +39,23 @@
 
 					function setCity(){
 						console.log(document.getElementById("city").value);
+						var call_data = "city=" + document.getElementById("city").value;
+						$.ajax({
+	                        url : '/get_city_polygon',
+	                        type : 'GET',
+	                        data : call_data,
+	                        //contentType: 'application/json; charset=utf-8',
+	                        //dataType: 'json',
+	                        success: function(response) {
+	                                console.log(response);
+	                                var geo = JSON.parse(response);
+	                                console.log(JSON.stringify(geo[0].geometry.coordinates[0]));
+	                    			map.fitBounds(geo[0].geometry.coordinates[0]);
+	                            },
+	                        error: function(error) {
+	                                console.log(error);
+	                            }
+						});
 					}
 
 				</script>
