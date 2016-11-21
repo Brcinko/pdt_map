@@ -38,13 +38,13 @@ def pubs():
     return render_template('pubs.html')
 
 
-@app.route('/pubs_building', methods=['GET'])
-def pubs_building():
-    return render_template('pubs_building.html')
+@app.route('/nearest_pub', methods=['GET'])
+def nearest_pub():
+    return render_template('nearest_pub.html')
 
 
-@app.route('/pubs_polygon', methods=['POST'])
-def pubs_polygon():
+@app.route('/nearest_pub_point', methods=['POST'])
+def nearest_pub_point():
     if request.method == 'POST':
         # print str(request.get_json(force=True))
         coords = request.get_json(force=True)

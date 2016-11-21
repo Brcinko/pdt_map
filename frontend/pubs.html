@@ -13,7 +13,7 @@
 			</header>
 			<nav class="w3-sidenav w3-white" style="width:25%">
 	 			<a href="pubs">Pubs</a> 
-	  			<a href="pubs_building">Pubs Building</a> 
+	  			<a href="nearest_pub">Nearest Pub</a> 
 	  			<a href="#">Hotels</a> 
 	  			<a href="#">Coffe</a>
 	  			<input type="submit" value="Skusa" onClick="skuska()"> 
@@ -88,6 +88,7 @@
                 // the feature, with description HTML from its properties.
                 map.on('click', function (e) {
                     var features = map.queryRenderedFeatures(e.point, { layers: ['places'] });
+                    var coords = e.lngLat;
 
                     if (!features.length) {
                         return;
@@ -99,7 +100,7 @@
                     // based on the feature found.
                     var popup = new mapboxgl.Popup()
                         .setLngLat(feature.geometry.coordinates)
-                        .setHTML(feature.properties.description)
+                        .setHTML(feature.properties.description + '<p>Longitude: ' + coords.lng + '</p><p>Latitude: ' + coords.lat + '</p>')
                         .addTo(map);
                 });
 
