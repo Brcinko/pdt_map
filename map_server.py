@@ -71,6 +71,14 @@ def nearest_pub_point():
         return json.dumps(pubsx)
 
 
+@app.route('/get_pubs_in_city', methods=['GET'])
+def get_pubs_in_city():
+    if request.method == 'GET':
+        print(request.args['city'])
+        return "200 OK"
+
+
+
 @app.route('/get_city_polygon', methods=['GET'])
 def get_city_polygon():
     if request.method == 'GET':
