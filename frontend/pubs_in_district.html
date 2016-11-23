@@ -15,15 +15,12 @@
 	 			<a href="pubs">Pubs</a> 
 	  			<a href="nearest_pub">Nearest Pub</a> 
 	  			<a href="pubs_in_district">Pubs In City</a> 
-	  			<a href="#">Coffe</a>
-	  			<input type="submit" value="Set City" onClick="setCity()"> 
-				<form>
-	  				<input type="text" name="city" id="city" placeholder="City name.." style="margin: 2px">
-				</form>
+	  			<a href="#">Nothing</a>
 				 <div id="disc" class="discclass">
 				    <select id="districts" class="districtsclass">
 				    </select>
 				 </div>
+				<input type="submit" value="Set District" onClick="setDistrict()">  
 			</nav>
 			<div style="margin-left:25%">
 
@@ -35,12 +32,13 @@
 			        	getDistricts();
 				    }
 
+				    var LayerID = 0;
 
 				    mapboxgl.accessToken = 'pk.eyJ1IjoiYnJjaW5rbyIsImEiOiJjaXU4czQyNTQwMDFhMnRweW05OGtyMHRpIn0.2-z96JNxFY23ERtAGz7iiA';
 					var map = new mapboxgl.Map({
 					    container: 'map',
-					    center: [17.768399, 48.447811],
-	  					zoom: 12,
+					    center: [19.698904, 48.668645],
+	  					zoom: 6,
 					    style: 'mapbox://styles/mapbox/streets-v9'
 					});
 					// Add zoom and rotation controls to the map.
@@ -52,9 +50,8 @@
 	                        url : '/get_districts',
 	                        type : 'GET',
 	                        success: function(response) {
-	                                console.log(response);
+	                                //console.log(response);
 	                                var districts = JSON.parse(response);
-
 	                                var box = document.getElementById("districts");
 									districts.districts.forEach(function(item){
 									    var opt = document.createElement("option");
@@ -69,6 +66,68 @@
 	                            }
 						});						
 					}
+
+					function setDistrict(){
+						var x = document.getElementById("districts").selectedIndex;
+						var district = document.getElementById("districts").options;
+						console.log(district[x].text);
+						var call_data = "district=" + district[x].text
+						var layerName = "route";
+						$.ajax({
+	                        url : '/get_district',
+	                        type : 'GET',
+	                        data : call_data,
+	                        success: function(response) {
+	                                //console.log(response);
+	                                var geo = JSON.parse(response);
+		                            //console.log(geo);
+		                            removeLayer(layerName);
+		                            map.addSource(layerName  + LayerID, {
+								        "type": "geojson",
+								        "data":{
+			            					"type": "FeatureCollection",
+			            					"features": geo
+								        }
+								    });
+
+								    map.addLayer({
+								        "id": layerName  + LayerID,
+								        "type": "line",
+								        "source": layerName  + LayerID,
+								        "layout": {
+								            "line-join": "round",
+								            "line-cap": "round"
+								        },
+								        "paint": {
+								            "line-color": "#E31818",
+								            "line-width": 4
+								        }
+								    });
+								    LayerID = LayerID + 1;
+
+	                            },
+	                        error: function(error) {
+	                                console.log(error);
+	                            }
+						});
+
+					}
+
+                   
+                    function removeLayer(layerName, mapp){
+                        if (LayerID == 0){
+                            return;
+                        }
+                        else{
+                            var removelayerID = LayerID - 1;
+                            map.removeSource(layerName + removelayerID);
+                            map.removeLayer(layerName + removelayerID);
+                        }
+                    }
+
+
+
+
 
 
 

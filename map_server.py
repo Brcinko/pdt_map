@@ -62,6 +62,21 @@ def get_districts():
         return json.dumps({"districts" : districtsx})
 
 
+@app.route('/get_district', methods=['GET'])
+def get_district():
+    if request.method == 'GET':
+        print(request.args['district'])
+        query = 'select ST_AsGeoJSON( ST_Transform(way, 4326)), name from planet_osm_line where admin_level = \'8\' and name like \'' + request.args['district'] + '\';'
+        district = db_connection.execute_query(conn, query)
+        districtx = list()
+        for d in district:
+            x = json.loads(d[0])
+            print str(x)
+            districtx.append({"type": "Feature",
+                          "properties": {},
+                          "geometry": x })
+        return json.dumps(districtx)
+
 @app.route('/nearest_pub_point', methods=['POST'])
 def nearest_pub_point():
     if request.method == 'POST':
