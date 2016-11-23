@@ -32,7 +32,8 @@
 			        	getDistricts();
 				    }
 
-				    var LayerID = 0;
+				    var districtLayerID = 0;
+				    var pubLayerID = 0;
 
 				    mapboxgl.accessToken = 'pk.eyJ1IjoiYnJjaW5rbyIsImEiOiJjaXU4czQyNTQwMDFhMnRweW05OGtyMHRpIn0.2-z96JNxFY23ERtAGz7iiA';
 					var map = new mapboxgl.Map({
@@ -80,9 +81,10 @@
 	                        success: function(response) {
 	                                //console.log(response);
 	                                var geo = JSON.parse(response);
-		                            //console.log(geo);
+		                            console.log("tatko");
 		                            removeLayer(layerName);
-		                            map.addSource(layerName  + LayerID, {
+		                            console.log(layerName  + districtLayerID);
+		                            map.addSource(layerName  + districtLayerID, {
 								        "type": "geojson",
 								        "data":{
 			            					"type": "FeatureCollection",
@@ -91,9 +93,9 @@
 								    });
 
 								    map.addLayer({
-								        "id": layerName  + LayerID,
+								        "id": layerName  + districtLayerID,
 								        "type": "line",
-								        "source": layerName  + LayerID,
+								        "source": layerName  + districtLayerID,
 								        "layout": {
 								            "line-join": "round",
 								            "line-cap": "round"
@@ -103,26 +105,76 @@
 								            "line-width": 4
 								        }
 								    });
-								    LayerID = LayerID + 1;
 
+								    getPubs(district[x].text);
+								    
 	                            },
 	                        error: function(error) {
 	                                console.log(error);
 	                            }
 						});
+						
+						districtLayerID = districtLayerID + 1;
 
 					}
 
-                   
+ 					function getPubs(district){
+ 						var call_data = "district=" + district
+						var layerName = "pubs";
+						$.ajax({
+	                        url : '/get_pubs_in_district',
+	                        type : 'GET',
+	                        data : call_data,
+	                        success: function(response) {
+	                                console.log(response);
+	                                var geo = JSON.parse(response);
+		                            //console.log(geo);
+		                            //removeLayer(layerName);
+		                            console.log(layerName  + pubLayerID);
+		                            map.addSource(layerName  + pubLayerID, {
+								        "type": "geojson",
+								        "data":{
+			            					"type": "FeatureCollection",
+			            					"features": geo
+								        }
+								    });
+
+								    map.addLayer({
+								        "id": layerName  + pubLayerID,
+								        "type": "fill",
+								        "source": layerName  + pubLayerID,
+								        'layout': {},
+								        'paint': {
+								            'fill-color': '#088',
+								            'fill-opacity': 0.8
+								        }
+								    });
+								    
+	                            },
+	                        error: function(error) {
+	                                console.log(error);
+	                            }
+
+						});
+						pubLayerID = pubLayerID + 1; 
+ 					}
+
                     function removeLayer(layerName, mapp){
-                        if (LayerID == 0){
-                            return;
+                    	if (districtLayerID == 0 || pubLayerID == 0){
+                            	return;
                         }
-                        else{
-                            var removelayerID = LayerID - 1;
+                        if (layerName == 'district'){
+                            var removelayerID = districtLayerID - 1;
+                            
                             map.removeSource(layerName + removelayerID);
                             map.removeLayer(layerName + removelayerID);
                         }
+                        else{
+                            var removelayerID = pubLayerID - 1;
+                            console.log();
+                            map.removeSource(layerName + removelayerID);
+                            map.removeLayer(layerName + removelayerID);
+                    	}
                     }
 
 
