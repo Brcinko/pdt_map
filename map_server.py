@@ -99,11 +99,22 @@ def nearest_pub_point():
         return json.dumps(pubsx)
 
 
-@app.route('/get_pubs_in_city', methods=['GET'])
-def get_pubs_in_city():
+@app.route('/get_pubs_in_district', methods=['GET'])
+def get_pubs_in_district():
     if request.method == 'GET':
-        print(request.args['city'])
-        return "200 OK"
+        print(request.args['district'])
+        query = 'select way from planet_osm_polygon where admin_level = \'8\' and name like \'' + request.args['district'] + '\';'
+        district_geom = db_connection.execute_query(conn, query)
+        print str(district_geom[0])
+        query = 'SELECT ST_AsGeoJSON(ST_transform(way,4326)), name FROM planet_osm_polygon WHERE amenity = \'pub\' OR amenity = \'restaurant\' AND ST_Within(way,\'' + district_geom[0][0] + '\' ) = True ;'
+        # query = 'SELECT ST_AsGeoJSON(ST_transform(way,4326)), name FROM planet_osm_polygon WHERE amenity = \'pub\' OR amenity = \'restaurant\' AND ST_Within(way,(select way from planet_osm_polygon where admin_level = \'8\' and name like \'' + request.args['district'] + '\') ) = True LIMIT 100;'
+        pubs = db_connection.execute_query(conn, query)
+        pubsx = list()
+        for p in pubs:
+            x = json.loads(p[0])
+            pubsx.append({"type": "Feature",
+                          "geometry":  x })
+        return json.dumps(pubsx)
 
 
 
@@ -138,7 +149,7 @@ def pubs_info():
                              "icon": "bar"},
                           "geometry":  x })
         return json.dumps(pubsx)
-        # return jsonify(json.dumps(pubsx))
+
 
 if __name__ == '__main__':
     # connect database
