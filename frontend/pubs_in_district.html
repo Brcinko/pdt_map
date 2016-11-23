@@ -14,18 +14,28 @@
 			<nav class="w3-sidenav w3-white" style="width:25%">
 	 			<a href="pubs">Pubs</a> 
 	  			<a href="nearest_pub">Nearest Pub</a> 
-	  			<a href="pubs_in_city">Pubs In City</a> 
+	  			<a href="pubs_in_district">Pubs In City</a> 
 	  			<a href="#">Coffe</a>
 	  			<input type="submit" value="Set City" onClick="setCity()"> 
 				<form>
 	  				<input type="text" name="city" id="city" placeholder="City name.." style="margin: 2px">
 				</form>
+				 <div id="disc" class="discclass">
+				    <select id="districts" class="districtsclass">
+				    </select>
+				 </div>
 			</nav>
 			<div style="margin-left:25%">
 
 				<div id='map' style='width: 800px; height: 500px; border-style: groove; margin: 5px'></div>
                 <pre id='coordinates' class='coordinates'></pre>
 				<script>
+					// get all distrcits to dropdown list
+			        window.onload = function () { 
+			        	getDistricts();
+				    }
+
+
 				    mapboxgl.accessToken = 'pk.eyJ1IjoiYnJjaW5rbyIsImEiOiJjaXU4czQyNTQwMDFhMnRweW05OGtyMHRpIn0.2-z96JNxFY23ERtAGz7iiA';
 					var map = new mapboxgl.Map({
 					    container: 'map',
@@ -35,6 +45,33 @@
 					});
 					// Add zoom and rotation controls to the map.
 					map.addControl(new mapboxgl.NavigationControl());
+
+
+					function getDistricts(){
+						$.ajax({
+	                        url : '/get_districts',
+	                        type : 'GET',
+	                        success: function(response) {
+	                                console.log(response);
+	                                var districts = JSON.parse(response);
+
+	                                var box = document.getElementById("districts");
+									districts.districts.forEach(function(item){
+									    var opt = document.createElement("option");
+									    //console.log(item);
+									    opt.value = item
+									    opt.innerHTML = item;
+									    box.appendChild(opt);
+									});
+	                            },
+	                        error: function(error) {
+	                                console.log(error);
+	                            }
+						});						
+					}
+
+
+
 
 
 					function setCity(){
@@ -79,6 +116,7 @@
 	                            }
 						});
 					}
+
 
 				</script>
 

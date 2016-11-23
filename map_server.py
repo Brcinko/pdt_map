@@ -44,9 +44,22 @@ def nearest_pub():
     return render_template('nearest_pub.html')
 
 
-@app.route('/pubs_in_city', methods=['GET'])
+@app.route('/pubs_in_district', methods=['GET'])
 def pubs_in_city():
-    return render_template('pubs_in_city.html')
+    return render_template('pubs_in_district.html')
+
+
+@app.route('/get_districts', methods=['GET'])
+def get_districts():
+    if request.method == 'GET':
+        query = 'SELECT name FROM planet_osm_polygon WHERE admin_level = \'8\' AND name like \'okres%\';'
+        districts = db_connection.execute_query(conn, query)
+        districtsx = list()
+        for d in districts:
+            districtsx.append(d[0])
+            # print str(districtsx)
+        # print str(districtsx)
+        return json.dumps({"districts" : districtsx})
 
 
 @app.route('/nearest_pub_point', methods=['POST'])
