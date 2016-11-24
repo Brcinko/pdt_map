@@ -82,6 +82,7 @@
 	                                //console.log(response);
 	                                var geo = JSON.parse(response);
 		                            console.log("tatko");
+		                            console.log(layerName  + districtLayerID);
 		                            removeLayer(layerName);
 		                            console.log(layerName  + districtLayerID);
 		                            map.addSource(layerName  + districtLayerID, {
@@ -106,15 +107,15 @@
 								        }
 								    });
 
-								    getPubs(district[x].text);
-								    
+								    //getPubs(district[x].text);
+								   districtLayerID = districtLayerID + 1; 
 	                            },
 	                        error: function(error) {
 	                                console.log(error);
 	                            }
 						});
+						getPubs(district[x].text);
 						
-						districtLayerID = districtLayerID + 1;
 
 					}
 
@@ -129,7 +130,7 @@
 	                                console.log(response);
 	                                var geo = JSON.parse(response);
 		                            //console.log(geo);
-		                            //removeLayer(layerName);
+		                            removeLayer(layerName);
 		                            console.log(layerName  + pubLayerID);
 		                            map.addSource(layerName  + pubLayerID, {
 								        "type": "geojson",
@@ -149,6 +150,7 @@
 								            'fill-opacity': 0.8
 								        }
 								    });
+								    pubLayerID = pubLayerID + 1; 
 								    
 	                            },
 	                        error: function(error) {
@@ -156,25 +158,27 @@
 	                            }
 
 						});
-						pubLayerID = pubLayerID + 1; 
+						
  					}
 
                     function removeLayer(layerName, mapp){
                     	if (districtLayerID == 0 || pubLayerID == 0){
                             	return;
-                        }
-                        if (layerName == 'district'){
-                            var removelayerID = districtLayerID - 1;
-                            
-                            map.removeSource(layerName + removelayerID);
-                            map.removeLayer(layerName + removelayerID);
-                        }
-                        else{
-                            var removelayerID = pubLayerID - 1;
-                            console.log();
-                            map.removeSource(layerName + removelayerID);
-                            map.removeLayer(layerName + removelayerID);
-                    	}
+                        }else{
+	                        if (layerName == 'district'){
+
+	                            var removelayerID = districtLayerID - 1;
+	                            console.log("Odstranujem districts s " + removelayerID);
+	                            map.removeSource(layerName + removelayerID);
+	                            map.removeLayer(layerName + removelayerID);
+	                        }
+	                        else{
+	                            var removelayerID = pubLayerID - 1;
+	                            console.log("Odstranujem pubs s " + removelayerID);
+	                            map.removeSource(layerName + removelayerID);
+	                            map.removeLayer(layerName + removelayerID);
+	                    	}
+	                    }
                     }
 
 
