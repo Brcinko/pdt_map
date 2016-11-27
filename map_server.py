@@ -49,8 +49,8 @@ def pubs_in_city():
     return render_template('pubs_in_district.html')
 
 
-@app.route('/get_districts', methods=['GET'])
-def get_districts():
+@app.route('/get_districts_list', methods=['GET'])
+def get_districts_list():
     if request.method == 'GET':
         query = 'SELECT name FROM planet_osm_polygon WHERE admin_level = \'8\' AND name like \'okres%\';'
         districts = db_connection.execute_query(conn, query)
@@ -62,8 +62,8 @@ def get_districts():
         return json.dumps({"districts" : districtsx})
 
 
-@app.route('/get_district', methods=['GET'])
-def get_district():
+@app.route('/get_district_boundary', methods=['GET'])
+def get_district_boundary():
     if request.method == 'GET':
         print(request.args['district'])
         query = 'select ST_AsGeoJSON( ST_Transform(way, 4326)), name from planet_osm_line where admin_level = \'8\' and name like \'' + request.args['district'] + '\';'
@@ -77,8 +77,8 @@ def get_district():
                           "geometry": x })
         return json.dumps(districtx)
 
-@app.route('/nearest_pub_point', methods=['POST'])
-def nearest_pub_point():
+@app.route('/get_nearest_pub_point', methods=['POST'])
+def get_nearest_pub_point():
     if request.method == 'POST':
         # print str(request.get_json(force=True))
         coords = request.get_json(force=True)
@@ -133,9 +133,9 @@ def get_city_polygon():
         return json.dumps(citiesx)
 
 
-@app.route('/pubs_info', methods=['GET'])
+@app.route('/get_pubs_info', methods=['GET'])
 # @cross_origin()
-def pubs_info():
+def get_pubs_info():
     if request.method == 'GET':
         query = 'SELECT name AS description, ST_AsGeoJSON(ST_Transform(way,4326)) AS geometry FROM planet_osm_point WHERE amenity = \'pub\';'
         # query = 'SELECT row_to_json(fc) FROM ( SELECT \'FeatureCollection\' AS type, array_to_json(array_agg(f)) AS features FROM (SELECT \'Feature\' AS type , ST_AsGeoJSON(ST_Transform(way,4326))::json AS geometry, row_to_json((name, amenity)) AS properties FROM planet_osm_point WHERE amenity = \'pub\'   ) AS f )  AS fc;'
