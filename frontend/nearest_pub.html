@@ -14,12 +14,7 @@
 			<nav class="w3-sidenav w3-white" style="width:25%">
 	 			<a href="pubs">Pubs</a> 
 	  			<a href="nearest_pub">Nearest Pub</a> 
-                <a href="pubs_in_district">Pubs In City</a> 
-	  			<a href="#">Coffe</a>
-	  			<input type="submit" value="Skusa" onClick="skuska()"> 
-				<form>
-	  				<input type="text" name="search" placeholder="Search.." style="margin: 2px">
-				</form>
+                <a href="pubs_in_district">Pubs In District</a> 
 			</nav>
 			
         <style>
@@ -171,15 +166,16 @@
                             //if (!isDragging) return;
                             //console.log(e);
                             //var coords = e.lngLat;
-                            var call_data = new Object();
-                            call_data.lng = e[0];
-                            call_data.lat = e[1];
+                            //var call_data = new Object();
+                            //call_data.lng = e[0];
+                            //call_data.lat = e[1];
+                            var call_data = "lng=" + e[0] + "&lat=" + e[1]
                             var layerName = "places";
                             console.log(call_data);
                            $.ajax({
                             url : '/get_nearest_pub_point',
-                            type : 'POST',
-                            data : JSON.stringify(call_data),
+                            type : 'GET',
+                            data : call_data,
                             //dataType : 'json',
                             success: function(response) {
                                     console.log(response);

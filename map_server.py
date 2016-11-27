@@ -65,25 +65,25 @@ def get_districts_list():
 @app.route('/get_district_boundary', methods=['GET'])
 def get_district_boundary():
     if request.method == 'GET':
-        print(request.args['district'])
+        # print(request.args['district'])
         query = 'select ST_AsGeoJSON( ST_Transform(way, 4326)), name from planet_osm_line where admin_level = \'8\' and name like \'' + request.args['district'] + '\';'
         district = db_connection.execute_query(conn, query)
         districtx = list()
         for d in district:
             x = json.loads(d[0])
-            print str(x)
+            # print str(x)
             districtx.append({"type": "Feature",
                           "properties": {},
                           "geometry": x })
         return json.dumps(districtx)
 
-@app.route('/get_nearest_pub_point', methods=['POST'])
+@app.route('/get_nearest_pub_point', methods=['GET'])
 def get_nearest_pub_point():
-    if request.method == 'POST':
+    if request.method == 'GET':
         # print str(request.get_json(force=True))
-        coords = request.get_json(force=True)
+        # coords = request.get_json(force=True)
         # print coords['lng'], coords['lat']
-        query = 'SELECT ST_AsGeoJSON(ST_Transform(way,4326)), name AS geometry FROM planet_osm_point WHERE amenity = \'pub\' ORDER BY ST_TRANSFORM(way, 4326) <-> st_setsrid(ST_MakePoint(' + str(coords['lng']) + ', ' + str(coords['lat']) + '),4326) LIMIT 1;'
+        query = 'SELECT ST_AsGeoJSON(ST_Transform(way,4326)), name AS geometry FROM planet_osm_point WHERE amenity = \'pub\' ORDER BY ST_TRANSFORM(way, 4326) <-> st_setsrid(ST_MakePoint(' + request.args['lng'] + ', ' + request.args['lat'] + '),4326) LIMIT 1;'
         # query = 'SELECT * FROM planet_osm_polygon WHERE ST_Distance_Sphere(way, ST_MakePoint(' + str(coords['lng']) + ', ' + str(coords['lat']) + ')) <= 100 * 1609.34;'
         # print query
         pubs = db_connection.execute_query(conn, query)
@@ -102,10 +102,10 @@ def get_nearest_pub_point():
 @app.route('/get_pubs_in_district', methods=['GET'])
 def get_pubs_in_district():
     if request.method == 'GET':
-        print(request.args['district'])
+        # print(request.args['district'])
         query = 'select way from planet_osm_polygon where admin_level = \'8\' and name like \'' + request.args['district'] + '\';'
         district_geom = db_connection.execute_query(conn, query)
-        print str(district_geom[0])
+        # print str(district_geom[0])
         query = 'SELECT ST_AsGeoJSON(ST_transform(way,4326)), name FROM planet_osm_polygon WHERE amenity = \'pub\' OR amenity = \'restaurant\' AND ST_Within(way,\'' + district_geom[0][0] + '\' ) = True ;'
         # query = 'SELECT ST_AsGeoJSON(ST_transform(way,4326)), name FROM planet_osm_polygon WHERE amenity = \'pub\' OR amenity = \'restaurant\' AND ST_Within(way,(select way from planet_osm_polygon where admin_level = \'8\' and name like \'' + request.args['district'] + '\') ) = True LIMIT 100;'
         pubs = db_connection.execute_query(conn, query)
@@ -121,7 +121,7 @@ def get_pubs_in_district():
 @app.route('/get_city_polygon', methods=['GET'])
 def get_city_polygon():
     if request.method == 'GET':
-        print(request.args['city'])
+        # print(request.args['city'])
         query = 'SELECT ST_AsGeoJSON(ST_Transform(way, 4326)), way from planet_osm_polygon WHERE place = \'city\' OR place = \'town\' and name = \'' + request.args['city'] + '\' LIMIT 1'
         cities = db_connection.execute_query(conn, query)
         citiesx = list()
